@@ -1,5 +1,5 @@
 {
-    "name": "ICAPLyon1/simple-tag-bundle",
+    "name": "icap-lyon1/simple-tag-bundle",
     "type": "symfony-bundle",
     "description": "Symfony TagBundle that easily adds tags to any entity",
     "keywords": ["tag"],

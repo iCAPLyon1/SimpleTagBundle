@@ -1,0 +1,4 @@
+services:
+    icaplyon1_simpletag.manager:
+        class: ICAPLyon1\Bundle\SimpleTagBundle\Service\Manager
+        arguments: [@doctrine.orm.entity_manager]

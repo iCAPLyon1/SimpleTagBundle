@@ -33,12 +33,12 @@ class ManagerTest extends WebTestCase
         $this->manager = new Manager($this->em);
     }
 
-    /*public function testCreateTag()
+    public function testCreateTag()
     {
-        $tag = $this->manager->createTag("video");
+        $tag = $this->manager->createTag("new");
 
         $this->assertEquals(1, $tag->getId());
-    }*/
+    }
 
     public function testLoadTag()
     {
@@ -68,7 +68,7 @@ class ManagerTest extends WebTestCase
 
         $testA = new TestA();
 
-        $this->manager->addTag($tags, $testA);
+        $this->manager->addTags($tags, $testA);
 
         $this->assertEquals(1,$testA->getId());
     }
@@ -82,7 +82,7 @@ class ManagerTest extends WebTestCase
 
         $testA = new TestA();
 
-        $this->manager->removeTag($tags, $testA);
+        $this->manager->removeTags($tags, $testA);
 
         $this->assertEquals(1,$testA->getId());
     }

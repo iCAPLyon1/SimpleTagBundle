@@ -64,6 +64,7 @@ class ManagerTest extends WebTestCase
         $testA = new TestA();
         $tag = $this->manager->loadOrCreateTag("text");
         $this->manager->addTag($tag, $testA);
+        $this->manager->addTag($tag, $testA);
 
         $this->assertEquals(1, $testA->getId());
     }
@@ -75,6 +76,7 @@ class ManagerTest extends WebTestCase
         $tags[] = $this->manager->loadOrCreateTag("music");
         $tags[] = $this->manager->loadOrCreateTag("video");
         $tags[] = $this->manager->loadOrCreateTag("text");
+        $this->manager->addTags($tags, $testB);
         $this->manager->addTags($tags, $testB);
 
         $this->assertEquals(1,$testB->getId());
@@ -102,6 +104,18 @@ class ManagerTest extends WebTestCase
         $this->manager->removeTags($tags, $testB);
 
         $this->assertEquals(1, $testB->getId());
+    }
+
+    public function testGetTags()
+    {
+        $testA = new TestA();
+        $testB = new TestB();
+
+        $tags = $this->manager->getTags($testA);
+        $this->assertCount(0, $tags);
+
+        $tags = $this->manager->getTags($testB);
+        $this->assertCount(1, $tags);
     }
 
     /**

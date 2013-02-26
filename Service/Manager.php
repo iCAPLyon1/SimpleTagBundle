@@ -6,6 +6,8 @@ use Doctrine\ORM\EntityManager;
 use ICAPLyon1\Bundle\SimpleTagBundle\Entity\Tag;
 use ICAPLyon1\Bundle\SimpleTagBundle\Entity\AssociatedTag;
 use ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface;
+use ICAPLyon1\Bundle\SimpleTagBundle\Exception\AlreadyAssociatedTagException;
+use ICAPLyon1\Bundle\SimpleTagBundle\Exception\UnassociatedTagException;
 
 class Manager
 {
@@ -50,6 +52,19 @@ class Manager
         }
 
         return $taggables;
+    }
+
+    /**
+     * Filter a given tag list to keep new tags
+     *
+     * @param array $tags
+     * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface $taggable
+     */
+    protected function filterNewTags($tags, TaggableInterface $taggable)
+    {
+        $oldTags = $this->getTags($taggable);
+
+        return array_diff($tags, $oldTags);
     }
 
     /**
@@ -127,7 +142,7 @@ class Manager
             return $tag;
         }
         else{
-
+            
         }
     }
 
@@ -189,7 +204,7 @@ class Manager
     public function addTag($tag, TaggableInterface $taggable)
     {
         if ($this->hasTag($tag, $taggable)) {
-
+            throw new AlreadyAssociatedTagException("Tag is already associated to object");
         } else {
             //Get taggable data
             $taggableClass = $this->getTaggableClass($taggable);
@@ -255,7 +270,7 @@ class Manager
             $this->getEntityManager()->remove($associatedTag);
             $this->getEntityManager()->flush();
         } else {
-
+            throw new UnassociatedTagException("The tag is not associated!");
         }
 
         return true;
@@ -339,19 +354,6 @@ class Manager
         }
 
         return $tags;
-    }
-
-    /**
-     * Filter a given tag list to keep new tags
-     *
-     * @param array $tags
-     * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface $taggable
-     */
-    public function filterNewTags($tags, TaggableInterface $taggable)
-    {
-        $oldTags = $this->getTags($taggable);
-
-        return array_diff($tags, $oldTags);
     }
 
 }

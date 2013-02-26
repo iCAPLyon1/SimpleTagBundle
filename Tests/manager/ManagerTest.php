@@ -5,6 +5,7 @@ namespace ICAPLyon1\Bundle\SimpleTagBundle\Tests\Manager;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use ICAPLyon1\Bundle\SimpleTagBundle\Service\Manager;
 use ICAPLyon1\Bundle\SimpleTagBundle\Tests\entity\TestA;
+use ICAPLyon1\Bundle\SimpleTagBundle\Tests\entity\TestB;
 
 class ManagerTest extends WebTestCase
 {
@@ -36,8 +37,7 @@ class ManagerTest extends WebTestCase
     public function testCreateTag()
     {
         $tag = $this->manager->createTag("new");
-
-        $this->assertEquals(1, $tag->getId());
+        if($tag) $this->assertEquals(1, $tag->getId());
     }
 
     public function testLoadTag()
@@ -61,30 +61,47 @@ class ManagerTest extends WebTestCase
 
     public function testAddTag()
     {
+        $testA = new TestA();
+        $tag = $this->manager->loadOrCreateTag("text");
+        $this->manager->addTag($tag, $testA);
+
+        $this->assertEquals(1, $testA->getId());
+    }
+
+    public function testAddTags()
+    {
+        $testB = new TestB();
         $tags = array();
         $tags[] = $this->manager->loadOrCreateTag("music");
         $tags[] = $this->manager->loadOrCreateTag("video");
         $tags[] = $this->manager->loadOrCreateTag("text");
+        $this->manager->addTags($tags, $testB);
 
-        $testA = new TestA();
-
-        $this->manager->addTags($tags, $testA);
-
-        $this->assertEquals(1,$testA->getId());
+        $this->assertEquals(1,$testB->getId());
     }
 
     public function testRemoveTag()
+    {
+        $testA = new TestA();
+        $tag = $this->manager->loadTag("youtube");
+        $this->manager->removeTag($tag, $testA);
+        $tag = $this->manager->loadTag("text");
+        $this->manager->removeTag($tag, $testA);
+
+        $this->assertEquals(1, $testA->getId());
+    }
+
+    public function testRemoveTags()
     {
         $tags = array();
         $tags[] = $this->manager->loadTag("music");
         $tags[] = $this->manager->loadTag("video");
         $tags[] = $this->manager->loadTag("youtube");
+        $tags[] = $this->manager->loadTag("new");
+        $testB = new TestB();
+        $this->manager->removeTags($tags, $testB);
 
-        $testA = new TestA();
-
-        $this->manager->removeTags($tags, $testA);
-
-        $this->assertEquals(1,$testA->getId());
+        $this->assertEquals(1, $testB->getId());
     }
 
     /**

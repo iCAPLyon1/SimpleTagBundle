@@ -5,6 +5,7 @@ namespace ICAPLyon1\Bundle\SimpleTagBundle\Service;
 use Doctrine\ORM\EntityManager;
 use ICAPLyon1\Bundle\SimpleTagBundle\Entity\Tag;
 use ICAPLyon1\Bundle\SimpleTagBundle\Entity\AssociatedTag;
+use ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface;
 
 class Manager
 {
@@ -75,7 +76,7 @@ class Manager
     /**
      * Get Class for a given object which mush implement TaggableInterface
      *
-     * @param TaggableInterface $taggable
+     * @param ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface $taggable
      * @return string Taggable's class
      */
     public function getTaggableClass(TaggableInterface $taggable)
@@ -92,7 +93,7 @@ class Manager
     /**
      * Get Hash for a given object which mush implement TaggableInterface
      *
-     * @param TaggableInterface $taggable
+     * @param ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface $taggable
      * @return string The generated hash
      */
     public function getHash(TaggableInterface $taggable)
@@ -115,12 +116,19 @@ class Manager
      */
     public function createTag($name)
     {
-        $tag = new Tag();
-        $tag->setName($name);
-        $this->getEntityManager()->persist($tag);
-        $this->getEntityManager()->flush();
+        $tag = $this->getTagRepository()->findOneByName($name);
+        if(!$tag)
+        {
+            $tag = new Tag();
+            $tag->setName($name);
+            $this->getEntityManager()->persist($tag);
+            $this->getEntityManager()->flush();
 
-        return $tag;
+            return $tag;
+        }
+        else{
+
+        }
     }
 
     /**
@@ -154,10 +162,10 @@ class Manager
      * Check if a tag is already associated with the given taggable object
      *
      * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\Tag $tag
-     * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\AssociatedTag $taggable
+     * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface $taggable
      * @return boolean
      */
-    public function hasTag($tag, $taggable)
+    public function hasTag($tag, TaggableInterface $taggable)
     {
         //Get taggable data
         $hash = $this->getHash($taggable);
@@ -174,11 +182,11 @@ class Manager
      * Associates a tag with a taggable object
      *
      * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\Tag $tag
-     * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\AssociatedTag $taggable
+     * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface $taggable
      * @throw ICAPLyon1\Bundle\SimpleTagBundle\Exception\AlreadyAssociatedTagException
      * @return boolean
      */
-    public function addTag($tag, $taggable)
+    public function addTag($tag, TaggableInterface $taggable)
     {
         if ($this->hasTag($tag, $taggable)) {
 
@@ -204,7 +212,7 @@ class Manager
      * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface $taggable
      * @return boolean
      */
-    public function addTags($tags, $taggable)
+    public function addTags($tags, TaggableInterface $taggable)
     {
         $tagsArray = (is_array($tags)) ? $tags : array($tags);
         //Get taggable data
@@ -212,7 +220,7 @@ class Manager
         $taggableClass = $this->getTaggableClass($taggable);
         $taggableId = $taggable->getId();
         //Filter tags, keep only new tags
-        $newTagsArray = filterNewTags($tags, $taggable);
+        $newTagsArray = $this->filterNewTags($tags, $taggable);
         foreach ($newTagsArray as $tag) {
             $associatedTag = new AssociatedTag();
             $associatedTag->setTag($tag);
@@ -234,12 +242,12 @@ class Manager
      * @throw ICAPLyon1\Bundle\SimpleTagBundle\Exception\UnassociatedTagException
      * @return boolean
      */
-    public function removeTag($tag, $taggable)
+    public function removeTag($tag, TaggableInterface $taggable)
     {
         //Get taggable data
         $hash = $this->getHash($taggable);
         //Get tag if exists
-        $associatedTag = $this->getAssociatedTagRepository()->findBy(array(
+        $associatedTag = $this->getAssociatedTagRepository()->findOneBy(array(
           'hash' => $hash,
           'tag' => $tag,  
         ));
@@ -260,12 +268,12 @@ class Manager
      * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface $taggable
      * @return boolean
      */
-    public function removeTags($tags, $taggable)
+    public function removeTags($tags, TaggableInterface $taggable)
     {
         //Get taggable data
         $hash = $this->getHash($taggable);
         foreach ($tags as $tag) {
-            $associatedTag = $this->getAssociatedTagRepository()->findBy(array(
+            $associatedTag = $this->getAssociatedTagRepository()->findOneBy(array(
               'hash' => $hash,
               'tag' => $tag,  
             ));
@@ -318,7 +326,7 @@ class Manager
      * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface $taggable
      * @return array
      */
-    public function getTags($taggable)
+    public function getTags(TaggableInterface $taggable)
     {
         //Get hash for taggable
         $hash = $this->getHash($taggable);
@@ -339,7 +347,7 @@ class Manager
      * @param array $tags
      * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface $taggable
      */
-    public function filterNewTags($tags, $taggable)
+    public function filterNewTags($tags, TaggableInterface $taggable)
     {
         $oldTags = $this->getTags($taggable);
 

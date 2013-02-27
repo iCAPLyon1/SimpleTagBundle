@@ -192,7 +192,7 @@ example in method:
 
 To get all tags for your entity:
     
-    ```php
+```php
     $this->get("icaplyon1_simpletag.manager")->getTags($entity);
-    ```
+```
 

@@ -1,11 +1,13 @@
 <?php
 
-namespace ICAPLyon1\Bundle\SimpleTagBundle\Tests\Manager;
+namespace ICAPLyon1\Bundle\SimpleTagBundle\Tests\Service;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use ICAPLyon1\Bundle\SimpleTagBundle\Service\Manager;
-use ICAPLyon1\Bundle\SimpleTagBundle\Tests\entity\TestA;
-use ICAPLyon1\Bundle\SimpleTagBundle\Tests\entity\TestB;
+use ICAPLyon1\Bundle\SimpleTagBundle\Tests\Entity\TestA;
+use ICAPLyon1\Bundle\SimpleTagBundle\Tests\Entity\TestB;
+use ICAPLyon1\Bundle\SimpleTagBundle\Exception\AlreadyAssociatedTagException;
+use ICAPLyon1\Bundle\SimpleTagBundle\Exception\UnassociatedTagException;
 
 class ManagerTest extends WebTestCase
 {
@@ -64,9 +66,20 @@ class ManagerTest extends WebTestCase
         $testA = new TestA();
         $tag = $this->manager->loadOrCreateTag("text");
         $this->manager->addTag($tag, $testA);
-        $this->manager->addTag($tag, $testA);
 
         $this->assertEquals(1, $testA->getId());
+    }
+
+    public function testExceptionAddTag()
+    {
+        $testA = new TestA();
+        $tag = $this->manager->loadOrCreateTag("text");
+        try {
+            $this->manager->addTag($tag, $testA);
+            $this->assertEquals(0, $testA->getId());
+        } catch(AlreadyAssociatedTagException $exp) {
+            $this->assertEquals(1, $testA->getId());
+        }
     }
 
     public function testAddTags()
@@ -85,10 +98,22 @@ class ManagerTest extends WebTestCase
     public function testRemoveTag()
     {
         $testA = new TestA();
-        $tag = $this->manager->loadTag("youtube");
-        $this->manager->removeTag($tag, $testA);
         $tag = $this->manager->loadTag("text");
         $this->manager->removeTag($tag, $testA);
+
+        $this->assertEquals(1, $testA->getId());
+    }
+
+    public function testExceptionRemoveTag()
+    {
+        $testA = new TestA();
+        $tag = $this->manager->loadTag("text");
+        try {
+            $this->manager->removeTag($tag, $testA);
+            $this->assertEquals(0, $testA->getId());
+        } catch(UnassociatedTagException $exp) {
+            $this->assertEquals(1, $testA->getId());
+        }
 
         $this->assertEquals(1, $testA->getId());
     }

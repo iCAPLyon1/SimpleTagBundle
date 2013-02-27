@@ -158,6 +158,17 @@ class Manager
     }
 
     /**
+     * Load a tag following to its id
+     *
+     * @param int $id
+     * @return ICAPLyon1\Bundle\SimpleTagBundle\Entity\Tag
+     */
+    public function loadTagById($id)
+    {
+        return $this->getTagRepository()->findOneById($id);
+    }
+
+    /**
      * Load or Create tag following to a given name
      *
      * @param string $name
@@ -167,10 +178,30 @@ class Manager
     {
         $tag = $this->loadTag($name);
         if (!$tag) {
-            $tag = $this->createTag();
+            $tag = $this->createTag($name);
         }
 
         return $tag;        
+    }
+
+    /**
+     * Load or Create tag following to a given string or list of names
+     *
+     * @param string or array $tagNames
+     * @return array tags
+     */
+    public function loadOrCreateTags($tagNames)
+    {
+        $tagNames = (is_array($tagNames)) ? $tagNames : array_filter(array_map('trim', explode(',', $tagNames)));
+
+        $tags = array();
+        foreach ($tagNames as $name) {
+            if ($name) {
+                $tags[] = $this->loadOrCreateTag($name);
+            }
+        }
+        
+        return $tags;
     }
 
     /**
@@ -354,6 +385,27 @@ class Manager
         }
 
         return $tags;
+    }
+
+    /**
+     * Removes tag associated to the given taggable object
+     *
+     * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface $taggable
+     * @return boolean
+     */
+    public function removeAllTags(TaggableInterface $taggable)
+    {
+        //Get hash for taggable
+        $hash = $this->getHash($taggable);
+        $associatedTags = $this->getAssociatedTagRepository()->findBy(array(
+              'hash' => $hash,
+        ));
+        foreach ($associatedTags as $associatedTag) {
+            $this->getEntityManager()->remove($associatedTag);
+        }
+        $this->getEntityManager()->flush();
+        
+        return true;
     }
 
 }

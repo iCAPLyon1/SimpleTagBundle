@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit colors="true">
+    <testsuites>
+        <testsuite name="SimpleTag Test Suite">
+            <directory>Tests/Service/</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">Service/</directory>
+        </whitelist>
+    </filter>
+</phpunit>

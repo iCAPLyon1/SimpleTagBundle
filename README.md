@@ -10,7 +10,7 @@ To install this bundle please follow the next steps:
 
 First add the dependency in your `composer.json` file:
     
-    ``` json
+    ```json
     "require": {
         ...
         "icap-lyon1/simple-tag-bundle": "dev-master"
@@ -23,7 +23,7 @@ Then install the bundle with the command:
 
 Enable the bundle in your application kernel:
 
-    ``` php
+    ```php
     <?php
     // app/AppKernel.php
 
@@ -38,7 +38,7 @@ Enable the bundle in your application kernel:
 
 Include the bundle configuration file in your app configuration file:
     
-    ``` yaml
+    ```yaml
     // app/config/config.yml
     imports:
         // ...
@@ -54,7 +54,7 @@ How to use
 In order to add tags to an entity, the entity has to implements TaggableInterface
 example:
     
-    ``` php
+    ```php
     <?php
     // Acme/Bundle/AcmeBundle/Entity/TaggableEntity.php
 
@@ -71,7 +71,7 @@ example:
 Then you need to add tags field in your entity's form 
 example:
     
-    ``` php
+    ```php
     <?php
     // Acme/Bundle/AcmeBundle/Form/TaggableEntityType.php
 
@@ -103,7 +103,7 @@ To associate, dissociate and get tags for your entity, in your entity's controll
 
 To associate tags to your entity, in functions create and update of your entity add the following:
     
-    ``` php
+    ```php
     <?php
     // Acme/Bundle/AcmeBundle/Controller/TaggableEntityController.php
 
@@ -143,25 +143,25 @@ To associate tags to your entity, in functions create and update of your entity 
 
 if you want to dissociate a tag from your entity:
     
-    ``` php
+    ```php
     $this->get("icaplyon1_simpletag.manager")->removeTag($tag, $entity);
     ```    
 
 if you want to dissociate multiple tags from your entity:
     
-    ``` php
+    ```php
     $this->get("icaplyon1_simpletag.manager")->removeTags($tags, $entity);
     ```
 
 if you want to remove all tags from your entity (DO THIS WHEN YOU ARE DELETING YOUR ENTITY IN ORDER TO AVOID KEEPING RUBBISH IN YOUR DATABASE):
     
-    ``` php
+    ```php
     $this->get("icaplyon1_simpletag.manager")->removeAllTags($entity);
     ```
 
 example in method:
     
-    ``` php
+    ```php
     // ...
     public function deleteAction(Request $request, $id)
     {
@@ -192,7 +192,7 @@ example in method:
 
 To get all tags for your entity:
     
-    ``` php
+    ```php
     $this->get("icaplyon1_simpletag.manager")->getTags($entity);
     ```
 

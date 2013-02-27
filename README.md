@@ -13,13 +13,15 @@ First add the dependency in your `composer.json` file:
 ```json
 "require": {
     ...
-    "icap-lyon1/simple-tag-bundle": "dev-master"
+    "icap-lyon1/simple-tag-bundle": "1.0.*"
 },
 ```
 
 Then install the bundle with the command:
 
-    php composer update
+```sh
+php composer update
+```
 
 Enable the bundle in your application kernel:
 
@@ -35,8 +37,13 @@ public function registerBundles()
     );
 }
 ```
+Then update your database schema:
 
-Include the bundle configuration file in your app configuration file:
+```sh
+php app/console doctrine:schema:update --force
+```
+
+Finally include the bundle configuration file in your app configuration file:
     
 ```yaml
 // app/config/config.yml

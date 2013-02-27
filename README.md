@@ -13,7 +13,7 @@ First add the dependency in your `composer.json` file:
 ```json
 "require": {
     ...
-    "icap-lyon1/simple-tag-bundle": "1.0.*"
+    "icap-lyon1/simple-tag-bundle": "1.1.*"
 },
 ```
 
@@ -41,6 +41,16 @@ Then update your database schema:
 
 ```sh
 php app/console doctrine:schema:update --force
+```
+
+Then install the bundle assets:
+
+```sh
+php app/console assets:install
+
+// if you want to create a symlink:
+
+php app/console assets:install --symlink
 ```
 
 Finally include the bundle configuration file in your app configuration file:

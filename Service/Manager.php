@@ -388,6 +388,16 @@ class Manager
     }
 
     /**
+     * Retrieve all stored tags
+     *
+     * @return array
+     */
+    public function getAllTags()
+    {
+        return $this->getTagRepository()->findAll();
+    }
+
+    /**
      * Removes tag associated to the given taggable object
      *
      * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface $taggable
@@ -404,7 +414,7 @@ class Manager
             $this->getEntityManager()->remove($associatedTag);
         }
         $this->getEntityManager()->flush();
-        
+
         return true;
     }
 

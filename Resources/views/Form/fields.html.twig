@@ -12,7 +12,9 @@
          <script src="{{ asset('bundles/icaplyon1simpletag/js/tag-it.min.js') }}"></script>
         <script type="text/javascript">
             $(document).ready(function(){
-                $("#{{ form.vars['id'] }}").tagit();
+                $("#{{ form.vars['id'] }}").tagit({
+                    'availableTags' : ["{{ all_tags()|join('","')|raw }}"]
+                });
             })
         </script>
     {% endspaceless %} 

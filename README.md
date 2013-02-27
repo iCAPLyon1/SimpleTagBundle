@@ -13,7 +13,7 @@ First add the dependency in your `composer.json` file:
 ```json
 "require": {
     ...
-    "icap-lyon1/simple-tag-bundle": "1.1.*"
+    "icap-lyon1/simple-tag-bundle": "1.2.*"
 },
 ```
 
@@ -116,7 +116,11 @@ class TaggableEntityType extends AbstractType
 }
 ```
 
-To associate, dissociate and get tags for your entity, in your entity's controller do the following:
+## Associate and dissociate tags
+
+To associate, dissociate tags to your entity, in your entity's controller do the following:
+
+### Associate
 
 To associate tags to your entity, in functions create and update of your entity add the following:
     
@@ -158,6 +162,8 @@ public function createAction(Request $request)
 // ...
 ```
 
+### Dissociate
+
 if you want to dissociate a tag from your entity:
     
 ```php
@@ -169,6 +175,8 @@ if you want to dissociate multiple tags from your entity:
 ```php
 $this->get("icaplyon1_simpletag.manager")->removeTags($tags, $entity);
 ```
+
+### Remove all tags from an entity
 
 if you want to remove all tags from your entity (DO THIS WHEN YOU ARE DELETING YOUR ENTITY IN ORDER TO AVOID KEEPING RUBBISH IN YOUR DATABASE):
     
@@ -206,6 +214,9 @@ public function deleteAction(Request $request, $id)
 
 // ...
 ```
+## Get tags
+
+### In your manager (php)
 
 To get all tags for your entity:
     
@@ -213,3 +224,23 @@ To get all tags for your entity:
 $this->get("icaplyon1_simpletag.manager")->getTags($entity);
 ```
 
+### In a twig template
+
+To get the tags associated to an object a twig extension has been created, use it as follows:
+
+```twig
+{{ entity_tags(entity) }}
+```
+
+## Get all stored tags
+
+You can get all stored tags to use them for example for autocomplete
+
+### Using php
+```php
+$this->get("icaplyon1_simpletag.manager")->getAllTags();
+```
+### Using twig
+```twig
+{{ all_tags(entity) }}
+```

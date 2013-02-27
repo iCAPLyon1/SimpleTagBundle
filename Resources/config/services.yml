@@ -8,3 +8,9 @@ services:
         arguments: []
         tags:
             - { name: form.type, alias: tags }
+
+    icaplyon1_simpletag.twig.simpletag_extension:
+        class: ICAPLyon1\Bundle\SimpleTagBundle\Twig\SimpleTagExtension
+        arguments: [@icaplyon1_simpletag.manager]
+        tags:
+            - { name: twig.extension }

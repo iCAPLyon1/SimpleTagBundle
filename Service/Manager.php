@@ -3,23 +3,18 @@
 namespace ICAPLyon1\Bundle\SimpleTagBundle\Service;
 
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\Form\FormFactory;
 use ICAPLyon1\Bundle\SimpleTagBundle\Entity\Tag;
 use ICAPLyon1\Bundle\SimpleTagBundle\Entity\AssociatedTag;
 use ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface;
+use ICAPLyon1\Bundle\SimpleTagBundle\Form\TaggableType;
 use ICAPLyon1\Bundle\SimpleTagBundle\Exception\AlreadyAssociatedTagException;
 use ICAPLyon1\Bundle\SimpleTagBundle\Exception\UnassociatedTagException;
 
 class Manager
 {
     protected $em;
-
-    /**
-     * @return Doctrine\ORM\EntityManager
-     */
-    protected function getEntityManager()
-    {
-        return $this->em;
-    }
+    protected $formFactory;
 
     /**
      * @return ICAPLyon1\Bundle\SimpleTagBundle\Entity\Tag
@@ -64,7 +59,7 @@ class Manager
     {
         $oldTags = $this->getTags($taggable);
 
-        return array_diff($tags, $oldTags);
+        return array('add' => array_diff($tags, $oldTags), 'remove' => array_diff($oldTags, $tags));
     }
 
     /**
@@ -72,9 +67,26 @@ class Manager
      *
      * @param Doctrine\ORM\EntityManager
      */
-    public function __construct(EntityManager $em)
+    public function __construct(EntityManager $em, FormFactory $form_factory)
     {
         $this->em = $em;
+        $this->formFactory = $form_factory;
+    }
+
+    /**
+     * @return EntityManager
+     */
+    public function getEntityManager()
+    {
+        return $this->em;
+    }
+
+    /**
+     * @return FormFactory
+     */
+    public function getFormFactory()
+    {
+        return $this->formFactory;
     }
 
     /**
@@ -266,8 +278,8 @@ class Manager
         $taggableClass = $this->getTaggableClass($taggable);
         $taggableId = $taggable->getId();
         //Filter tags, keep only new tags
-        $newTagsArray = $this->filterNewTags($tags, $taggable);
-        foreach ($newTagsArray as $tag) {
+        $addRemoveTagsArray = $this->filterNewTags($tags, $taggable);
+        foreach ($addRemoveTagsArray['add'] as $tag) {
             $associatedTag = new AssociatedTag();
             $associatedTag->setTag($tag);
             $associatedTag->setHash($hash);
@@ -328,6 +340,38 @@ class Manager
             } 
         }
         $this->getEntityManager()->flush();
+
+        return true;
+    }
+
+    /**
+     * To associate a tag list with a taggable object 
+     * and dissociate all tags that are associated to entity and are not in the given list of tags
+     *
+     * @param  array $tags
+     * @param  ICAPLyon1\Bundle\SimpleTagBundle\Entity\TaggableInterface $taggable
+     * @return boolean
+     */
+    public function addRemoveTags($tags, TaggableInterface $taggable)
+    {
+        $tagsArray = (is_array($tags)) ? $tags : array($tags);
+        //Get taggable data
+        $hash = $this->getHash($taggable);
+        $taggableClass = $this->getTaggableClass($taggable);
+        $taggableId = $taggable->getId();
+        //Filter tags, keep only new tags
+        $addRemoveTagsArray = $this->filterNewTags($tags, $taggable);
+        foreach ($addRemoveTagsArray['add'] as $tag) {
+            $associatedTag = new AssociatedTag();
+            $associatedTag->setTag($tag);
+            $associatedTag->setHash($hash);
+            $associatedTag->setTaggableClass($taggableClass);
+            $associatedTag->setTaggableId($taggableId);
+            $this->getEntityManager()->persist($associatedTag);
+        }
+        $this->getEntityManager()->flush();
+
+        $this->removeTags($addRemoveTagsArray['remove'], $taggable);
 
         return true;
     }
@@ -416,6 +460,44 @@ class Manager
         $this->getEntityManager()->flush();
 
         return true;
+    }
+
+    /**
+     * create a form based on a given Type/TaggableInterface and attach media input fields
+     *
+     * @param FormType $form
+     * @param array $options
+     * @return FormType
+     */
+    public function createForm($type, TaggableInterface &$taggable)
+    {
+        return $this->getFormFactory()->create(
+            new TaggableType(),
+            null,
+            array(
+                'taggableType' => $type,
+                'taggable'     => $taggable,
+                'manager'      => $this,
+            )
+        );
+    }
+
+    /**
+     * process a form
+     *
+     * @param Form $form
+     * @return void
+     */
+    public function processForm($form)
+    {
+        $taggable = $form->get('taggable')->getData();
+        $tags = $form->get('tags')->getData();
+
+        $this->getEntityManager()->persist($taggable);
+        $this->getEntityManager()->flush();
+        $this->addRemoveTags($tags, $taggable);
+
+        return $taggable;
     }
 
 }

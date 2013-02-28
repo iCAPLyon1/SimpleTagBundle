@@ -3,11 +3,24 @@ namespace ICAPLyon1\Bundle\SimpleTagBundle\Form\DataTransformer;
 
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
-use Doctrine\Common\Persistence\ObjectManager;
+use ICAPLyon1\Bundle\SimpleTagBundle\Service\Manager;
 use ICAPLyon1\Bundle\SimpleTagBundle\Entity\Tag;
 
 class TagsToTextTransformer implements DataTransformerInterface
 {
+    /**
+     * @var Tag's Manager
+     */
+    private $manager;
+
+    /**
+     * @param Manager $em
+     */
+    public function __construct($manager)
+    {
+        $this->manager = $manager;
+    }
+
     /**
      * Transforms objects (tags) to a string.
      *
@@ -40,19 +53,13 @@ class TagsToTextTransformer implements DataTransformerInterface
             $tagNames = ''; // default
         }
 
-        $tagNamesArray = array_filter(array_map('trim', explode(',', $tagNames)));
         // 1. Split the string with commas
         // 2. Remove whitespaces around the tags
         // 3. Remove empty elements (like in "tag1,tag2, ,,tag3,tag4")
+        $tagNamesArray = array_filter(array_map('trim', explode(',', $tagNames)));
 
-        $tags = array();
-        foreach ($tagNamesArray as $tagName) {
-            $tag = new Tag();
-            $tag->setName(trim($tagName));
-            array_push($tags, $tag);
-        }
-
-        return $tags;
+        //Load or create new tags and return collection
+        return $this->manager->loadOrCreateTags($tagNamesArray);
     }
 
 }

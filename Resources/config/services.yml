@@ -1,11 +1,11 @@
 services:
     icaplyon1_simpletag.manager:
         class: ICAPLyon1\Bundle\SimpleTagBundle\Service\Manager
-        arguments: [@doctrine.orm.entity_manager]
+        arguments: [@doctrine.orm.entity_manager,  @form.factory]
 
     icaplyon1_type.tags:
         class: ICAPLyon1\Bundle\SimpleTagBundle\Form\TagsType
-        arguments: []
+        arguments: [@icaplyon1_simpletag.manager]
         tags:
             - { name: form.type, alias: tags }
 

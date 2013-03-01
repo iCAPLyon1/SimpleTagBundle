@@ -13,7 +13,7 @@ First add the dependency in your `composer.json` file:
 ```json
 "require": {
     ...
-    "icap-lyon1/simple-tag-bundle": "1.2.*"
+    "icap-lyon1/simple-tag-bundle": "2.0.*"
 },
 ```
 
@@ -85,84 +85,51 @@ class TaggableEntity implements TaggableInterface
 }
 ```
 
-Then you need to add tags field in your entity's form 
-example:
-    
+Then when you wish to associate an entity with a tag, simply call the `icaplyon1_simpletag.manager` service to create a form and process it as explained below:
 ```php
-<?php
-// Acme/Bundle/AcmeBundle/Form/TaggableEntityType.php
+// Instead of standard form creation
+// $form = $this->createForm(new MyObjectType(), $myObject);
 
-namespace Acme\Bundle\AcmeBundle\Form;
+// Do this:
+$form = $this->get('icaplyon1_simpletag.manager')->createForm(
+    new TaggableEntityType(),
+    $entity);
+```
 
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+To save and associate the tags with your entity, call the processForm function like this:
+```php
+if ($form->isValid()) {
+    $myObject = $this->get('icaplyon1_simpletag.manager')->processForm($form);
 
-class TaggableEntityType extends AbstractType
-{
-    public function buildForm(FormBuilderInterface $builder, array $options)
-    {
-        $builder
-            // ...
-            ->add('tags', 'tags', array(
-                'required'  => false,
-                'property_path' => false,
-            ))
-        ;
-    }
-
-    // The rest of your code here ...
-
+    return $this->redirect($this->generateUrl(...));
 }
 ```
 
-## Associate and dissociate tags
+*The `processForm($form)` method will retrieve the input tags, add new (not already associated) tags and remove associated tags that are not included in the input list*
 
-To associate, dissociate tags to your entity, in your entity's controller do the following:
+#Functions of `icaplyon1_simpletag.manager`
+---------------------------------------------- 
 
-### Associate
+### Associate tags
+if you want to associate a tag with your entity:
 
-To associate tags to your entity, in functions create and update of your entity add the following:
-    
 ```php
-<?php
-// Acme/Bundle/AcmeBundle/Controller/TaggableEntityController.php
-
 // ...
-public function createAction(Request $request)
-{
-    $entity  = new TaggableEntity();
-    $form = $this->createForm(new TaggableEntityType(), $entity);
-    $form->bind($request);
-
-    if ($form->isValid()) {
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($entity);
-        $em->flush();
-
-        //Get the tag names from form
-        $data = $request->request->get($form->getName());
-        $tagNames = $data['tags'];
-
-        //Load tags if they exist already or create new tags
-        $tags = $this->get("icaplyon1_simpletag.manager")->loadOrCreateTags($tagNames);
-        
-        //Associate tags with your entity
-        $this->get("icaplyon1_simpletag.manager")->addTags($tags, $entity);
-
-        return $this->redirect($this->generateUrl('taggableentity_show', array('id' => $entity->getId())));
-    }
-
-    return array(
-        'entity' => $entity,
-        'form'   => $form->createView(),
-    );
-}
-
+//Associate tags with your entity
+$this->get("icaplyon1_simpletag.manager")->addTag($tag, $entity);
 // ...
 ```
 
-### Dissociate
+if you want to associate multiple tags with your entity:
+
+```php
+// ...
+//Associate tags with your entity
+$this->get("icaplyon1_simpletag.manager")->addTags($tags, $entity);
+// ...
+```
+
+### Dissociate tags
 
 if you want to dissociate a tag from your entity:
     
@@ -178,7 +145,7 @@ $this->get("icaplyon1_simpletag.manager")->removeTags($tags, $entity);
 
 ### Remove all tags from an entity
 
-if you want to remove all tags from your entity (DO THIS WHEN YOU ARE DELETING YOUR ENTITY IN ORDER TO AVOID KEEPING RUBBISH IN YOUR DATABASE):
+if you want to remove all tags from your entity (*DO THIS WHEN YOU ARE DELETING YOUR ENTITY IN ORDER TO AVOID KEEPING RUBBISH IN YOUR DATABASE*):
     
 ```php
 $this->get("icaplyon1_simpletag.manager")->removeAllTags($entity);

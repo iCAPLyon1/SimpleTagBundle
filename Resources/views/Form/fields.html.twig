@@ -2,14 +2,14 @@
 
 {% block tags_widget %} 
     {% spaceless %} 
-        {{ block('field_widget') }}
+        {{ block('form_widget') }}
         
         <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/flick/jquery-ui.css"/>
         <link href="{{ asset('bundles/icaplyon1simpletag/css/jquery.tagit.css') }}" rel="stylesheet" type="text/css"/>
-         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script> 
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
          
-         <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/jquery-ui.min.js"></script>
-         <script src="{{ asset('bundles/icaplyon1simpletag/js/tag-it.min.js') }}"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/jquery-ui.min.js"></script>
+        <script src="{{ asset('bundles/icaplyon1simpletag/js/tag-it.min.js') }}"></script>
         <script type="text/javascript">
             $(document).ready(function(){
                 $("#{{ form.vars['id'] }}").tagit({

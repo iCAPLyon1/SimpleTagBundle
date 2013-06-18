@@ -28,7 +28,7 @@ class TaggableType extends AbstractType
 
         $builder
             ->add('taggable', $options['taggableType'], array(
-                'property_path' => false,
+                'mapped'        => false,
                 'label'         => $label,
                 'data'          => $options['taggable'],
             ))
@@ -38,7 +38,7 @@ class TaggableType extends AbstractType
         $tags = $manager->getTags($options['taggable']);
         $builder
             ->add('tags', 'tags', array(
-                'property_path'   => false,
+                'mapped'          => false,
                 'required'        => false,
                 'data'            => $tags,
                 'manager'         => $manager,

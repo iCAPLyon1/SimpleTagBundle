@@ -11,7 +11,7 @@ class TagsType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->appendClientTransformer(new TagsToTextTransformer($options['manager']));
+        $builder->addViewTransformer(new TagsToTextTransformer($options['manager']));
     }
     
     public function setDefaultOptions(OptionsResolverInterface $resolver)

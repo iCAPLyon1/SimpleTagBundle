@@ -209,5 +209,5 @@ $this->get("icaplyon1_simpletag.manager")->getAllTags();
 ```
 ### Using twig
 ```twig
-{{ all_tags(entity) }}
+{{ all_tags() }}
 ```
